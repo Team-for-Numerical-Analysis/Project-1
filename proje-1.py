@@ -5,19 +5,18 @@ class Proje1():
         #bir arayüz başlatalım
         self.root=tk.Tk()
         self.root.config(bg="#FFFFF0")
+        self.root.title("Nümerik Proje")
 
-        self.r1=tk.IntVar(value=0)
-        
         frame=tk.Frame(self.root,bd=2,relief="groove",padx=5,pady=10,bg="lightyellow")
         frame.grid(row=1,column=0,rowspan=4)
         #başlık ekledim
         header=tk.Label(self.root,text="Nümerik Proje #1",font=("normal",18,"bold"),bg="#FFFFF0")
         header.grid(row=0,column=1)
         #yöntem seçimi için radio button kullanmaya karar kıldım.
-        
-        d1= tk.Radiobutton(frame,text="Aralık Yarılama",variable= self.r1,value=1,bg="lightyellow") 
+        self.r1 = tk.IntVar(value=0)
+        d1= tk.Radiobutton(frame,text="Aralık Yarılama",variable= self.r1,value=1,bg="lightyellow",command=self.EntryeYaz)
         d1.grid(row=1,column=0,sticky="w")
-        d2=tk.Radiobutton(frame,text="Newton-Raphson",variable=self.r1,value=2,bg="lightyellow")  
+        d2=tk.Radiobutton(frame,text="Newton-Raphson",variable=self.r1,value=2,bg="lightyellow")
         d2.grid(row=2,column=0,sticky="w")
         d3=tk.Radiobutton(frame,text="Sekant Yöntemi",variable=self.r1,value=3,bg="lightyellow")   
         d3.grid(row=3,column=0,sticky="w")
@@ -43,7 +42,10 @@ class Proje1():
 
         tk.mainloop()
 
-
+    def EntryeYaz(self):
+        if self.r1.get() == 1:
+            self.formul1.set("X^3 -4x -2")
+            self.formul2.set("Yarın Hazırlayacağım")
     def buttonOnay(self):
         #ilk ekranı gizleyelim
         self.root.withdraw()
@@ -51,6 +53,8 @@ class Proje1():
         self.top=tk.Toplevel()
         self.top.title("Sonuç Ekranı")
         self.top.config(bg="#FFFFF0")
+
+
 
         #formülleri gösterelim
         self.f1=tk.Label(self.top,textvariable=self.formul1,bg="#FFFFF0")
@@ -60,19 +64,61 @@ class Proje1():
 
         #listbox oluşturacağım ki işlemleri gösterebileyim
 
-        lb1=tk.Listbox(self.top)
-        lb1.grid(row=1,column=0,padx=10,pady=10)
-        lb2=tk.Listbox(self.top)
-        lb2.grid(row=1,column=1,padx=10,pady=10)
+        self.lb1=tk.Listbox(self.top,width=50,height=20)
+        self.lb1.grid(row=1,column=0,padx=10,pady=10)
+        self.lb2=tk.Listbox(self.top,width=50,height=20)
+        self.lb2.grid(row=1,column=1,padx=10,pady=10)
+        #Hangi Yöntemin seçildiğine dair:
+        if self.r1.get() == 1:
+            self.AralikYarilama()
 
         #buton oluşturup geri döndürelim
         bGeri=tk.Button(self.top,text="Geri Dön",width=25,command=self.geridon)
-        bGeri.grid(row=2,column=1)
+        bGeri.grid(row=2,column=0,columnspan=3,pady=10)
 
     def geridon(self):
         self.top.destroy()
         self.root.deiconify()
+    def AralikYarilama(self):
+        #Burada x Değerlerini Oluşturdum
+        HataDegeri = 1
+        xKucuk = -3
+        xBuyuk = 3
+        xOrtalama = 0
+        Sayac = 1
 
+        def AralikYarilamaFonksiyonBir(x):
+            #Seçtiğim Fonksiyonun x'e göre sonucunu döndüren fonksiyonu oluşturdum
+            return x * x * x - 4 * x - 2
+
+        def OrtalamaBul(xKucuk, xBuyuk):
+            #Aralığın ortasını bulan ve döndüren fonksiyon.
+            return (xKucuk + xBuyuk) / 2
+
+        #Hata değerimiz 0,001 den küçük olduğunda duracak.
+        while HataDegeri >= 0.001:
+            #Her seferinde ilk olarak ortalama değeri buluyoruz.
+            xOrtalama = OrtalamaBul(xKucuk, xBuyuk)
+            # x değerlerini yazdırıyoruz.
+            self.lb1.insert(tk.END, f"{Sayac}) Xa : {xKucuk} Xb = {xBuyuk} Xo ={xOrtalama}")
+            #her x değerini fonksiyonumuzda yerine koyup hesaplıyoruz.
+            SonucBir = AralikYarilamaFonksiyonBir(xKucuk)
+            Sonucİki = AralikYarilamaFonksiyonBir(xBuyuk)
+            SonucUc = AralikYarilamaFonksiyonBir(xOrtalama)
+            #Fonksiyon sonuçlarını yazdırıyoruz.
+            self.lb1.insert(tk.END, f"{Sayac}) Fa = {SonucBir} Fb = {Sonucİki} Fc = {SonucUc}")
+            #Yöntem gereği eğer fonksiyon sonuçları aynı işarette ise X değerlerini değiştireceğiz bunun için aşağıdaki yöntemi kullandım
+            if SonucUc * Sonucİki > 0:
+                xBuyuk = xOrtalama
+            else:
+                xKucuk = xOrtalama
+            if SonucBir < 0:
+                SonucBir = SonucBir * -1
+            if Sonucİki < 0:
+                Sonucİki = Sonucİki * -1
+            #Her Seferinde hata değerini hesaplıyoruz (Her seferinde Azalıyor)
+            HataDegeri = Sonucİki + SonucBir
+            Sayac = Sayac+1
 
 basla=Proje1()
 basla.Main()
