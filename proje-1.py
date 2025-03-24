@@ -1,4 +1,5 @@
 import tkinter as tk
+import math
 class Proje1():
     
     def Main(self):
@@ -6,7 +7,7 @@ class Proje1():
         self.root=tk.Tk()
         self.root.config(bg="#FFFFF0")
         self.root.title("Nümerik Proje")
-
+        self.root.resizable(False, False)
         frame=tk.Frame(self.root,bd=2,relief="groove",padx=5,pady=10,bg="lightyellow")
         frame.grid(row=1,column=0,rowspan=4)
         #başlık ekledim
@@ -34,7 +35,7 @@ class Proje1():
         
         #Butonla seçimimizi onaylayalım
         b1=tk.Button(self.root,text="Onayla",width=25,command=self.buttonOnay)
-        b1.grid(row=4,column=2)
+        b1.grid(row=4,column=2,padx=10,pady=6)
 
         #Butona basıldıktan sonra 2. ekran açılıp 2 ayrı lsitboxta sırayla işlemlerin adımlarını göstermesi lazım
 
@@ -44,8 +45,8 @@ class Proje1():
 
     def EntryeYaz(self):
         if self.r1.get() == 1:
-            self.formul1.set("X^3 -4x -2")
-            self.formul2.set("Yarın Hazırlayacağım")
+            self.formul1.set("e^-x * (2x+5x+2) + 1")
+            self.formul2.set("cos(x)-x*e^x")
     def buttonOnay(self):
         #ilk ekranı gizleyelim
         self.root.withdraw()
@@ -80,45 +81,81 @@ class Proje1():
         self.top.destroy()
         self.root.deiconify()
     def AralikYarilama(self):
+        #region Birinci Fonksiyon için.
         #Burada x Değerlerini Oluşturdum
-        HataDegeri = 1
-        xKucuk = -3
-        xBuyuk = 3
-        xOrtalama = 0
+        fBirHataDegeri = 1
+        fBirxKucuk = 0
+        fBirxBuyuk = -1
+        fBirxOrtalama = 0
         Sayac = 1
 
         def AralikYarilamaFonksiyonBir(x):
             #Seçtiğim Fonksiyonun x'e göre sonucunu döndüren fonksiyonu oluşturdum
-            return x * x * x - 4 * x - 2
-
-        def OrtalamaBul(xKucuk, xBuyuk):
-            #Aralığın ortasını bulan ve döndüren fonksiyon.
-            return (xKucuk + xBuyuk) / 2
+            return math.exp(-x) * (x ** 2 + 5 * x + 2) + 1
 
         #Hata değerimiz 0,001 den küçük olduğunda duracak.
-        while HataDegeri >= 0.001:
+        while fBirHataDegeri >= 0.001:
             #Her seferinde ilk olarak ortalama değeri buluyoruz.
-            xOrtalama = OrtalamaBul(xKucuk, xBuyuk)
+            fBirxOrtalama = (fBirxKucuk + fBirxBuyuk) / 2
             # x değerlerini yazdırıyoruz.
-            self.lb1.insert(tk.END, f"{Sayac}) Xa : {xKucuk} Xb = {xBuyuk} Xo ={xOrtalama}")
+            self.lb1.insert(tk.END, f"{Sayac}) Xa : {fBirxKucuk} Xb = {fBirxBuyuk} Xo ={fBirxOrtalama}")
             #her x değerini fonksiyonumuzda yerine koyup hesaplıyoruz.
-            SonucBir = AralikYarilamaFonksiyonBir(xKucuk)
-            Sonucİki = AralikYarilamaFonksiyonBir(xBuyuk)
-            SonucUc = AralikYarilamaFonksiyonBir(xOrtalama)
+            SonucBir = AralikYarilamaFonksiyonBir(fBirxKucuk)
+            Sonucİki = AralikYarilamaFonksiyonBir(fBirxBuyuk)
+            SonucUc = AralikYarilamaFonksiyonBir(fBirxOrtalama)
             #Fonksiyon sonuçlarını yazdırıyoruz.
             self.lb1.insert(tk.END, f"{Sayac}) Fa = {SonucBir} Fb = {Sonucİki} Fc = {SonucUc}")
+            self.lb1.insert(tk.END, "--------------------------------")
             #Yöntem gereği eğer fonksiyon sonuçları aynı işarette ise X değerlerini değiştireceğiz bunun için aşağıdaki yöntemi kullandım
             if SonucUc * Sonucİki > 0:
-                xBuyuk = xOrtalama
+                fBirxBuyuk = fBirxOrtalama
             else:
-                xKucuk = xOrtalama
+                fBirxKucuk = fBirxOrtalama
             if SonucBir < 0:
                 SonucBir = SonucBir * -1
             if Sonucİki < 0:
                 Sonucİki = Sonucİki * -1
             #Her Seferinde hata değerini hesaplıyoruz (Her seferinde Azalıyor)
-            HataDegeri = Sonucİki + SonucBir
+            fBirHataDegeri = Sonucİki + SonucBir
             Sayac = Sayac+1
+        #endregion
+        #region
+        # Burada x Değerlerini Oluşturdum
+        fİkiHataDegeri = 1
+        fİkixKucuk = 0
+        fİkixBuyuk = 1
+        fİkixOrtalama = 0
+        Sayac = 1
+
+        def AralikYarilamaFonksiyonİki(x):
+            # Seçtiğim Fonksiyonun x'e göre sonucunu döndüren fonksiyonu oluşturdum
+            return math.cos(x) - x * math.exp(x)
+
+        # Hata değerimiz 0,001 den küçük olduğunda duracak.
+        while fİkiHataDegeri >= 0.001:
+            # Her seferinde ilk olarak ortalama değeri buluyoruz.
+            fİkixOrtalama = (fİkixKucuk + fİkixBuyuk) / 2
+            # x değerlerini yazdırıyoruz.
+            self.lb2.insert(tk.END, f"{Sayac}) Xa : {fİkixKucuk} Xb = {fİkixBuyuk} Xo ={fİkixOrtalama}")
+            # her x değerini fonksiyonumuzda yerine koyup hesaplıyoruz.
+            SonucBir = AralikYarilamaFonksiyonİki(fİkixKucuk)
+            Sonucİki = AralikYarilamaFonksiyonİki(fİkixBuyuk)
+            SonucUc = AralikYarilamaFonksiyonİki(fİkixOrtalama)
+            # Fonksiyon sonuçlarını yazdırıyoruz.
+            self.lb2.insert(tk.END, f"{Sayac}) Fa = {SonucBir} Fb = {Sonucİki} Fc = {SonucUc}")
+            self.lb2.insert(tk.END, "--------------------------------")
+            # Yöntem gereği eğer fonksiyon sonuçları aynı işarette ise X değerlerini değiştireceğiz bunun için aşağıdaki yöntemi kullandım
+            if SonucUc * Sonucİki > 0:
+                fİkixBuyuk = fİkixOrtalama
+            else:
+                fİkixKucuk = fİkixOrtalama
+            if SonucBir < 0:
+                SonucBir = SonucBir * -1
+            if Sonucİki < 0:
+                Sonucİki = Sonucİki * -1
+            # Her Seferinde hata değerini hesaplıyoruz (Her seferinde Azalıyor)
+            fİkiHataDegeri = Sonucİki + SonucBir
+            Sayac = Sayac + 1
 
 basla=Proje1()
 basla.Main()
