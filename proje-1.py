@@ -17,7 +17,7 @@ class Proje1():
         self.r1 = tk.IntVar(value=0)
         d1= tk.Radiobutton(frame,text="Aralık Yarılama",variable= self.r1,value=1,bg="lightyellow",command=self.EntryeYaz)
         d1.grid(row=1,column=0,sticky="w")
-        d2=tk.Radiobutton(frame,text="Newton-Raphson",variable=self.r1,value=2,bg="lightyellow")
+        d2=tk.Radiobutton(frame,text="Newton-Raphson",variable=self.r1,value=2,bg="lightyellow",command=self.EntryeYaz)
         d2.grid(row=2,column=0,sticky="w")
         d3=tk.Radiobutton(frame,text="Sekant Yöntemi",variable=self.r1,value=3,bg="lightyellow")   
         d3.grid(row=3,column=0,sticky="w")
@@ -44,9 +44,14 @@ class Proje1():
         tk.mainloop()
 
     def EntryeYaz(self):
-        if self.r1.get() == 1:
+        self.secim=self.r1.get()
+        if self.secim == 1:
             self.formul1.set("e^-x * (2x+5x+2) + 1")
             self.formul2.set("cos(x)-x*e^x")
+        if self.secim==2:
+            self.formul1.set("(x^3) - (x^2) - 2")
+            self.formul2.set("-8 * cos(x) - x")
+        
     def buttonOnay(self):
         #ilk ekranı gizleyelim
         self.root.withdraw()
@@ -70,8 +75,10 @@ class Proje1():
         self.lb2=tk.Listbox(self.top,width=50,height=20)
         self.lb2.grid(row=1,column=1,padx=10,pady=10)
         #Hangi Yöntemin seçildiğine dair:
-        if self.r1.get() == 1:
+        if self.secim == 1:
             self.AralikYarilama()
+        if self.secim == 2:
+            self.NewtonRaphson()
 
         #buton oluşturup geri döndürelim
         bGeri=tk.Button(self.top,text="Geri Dön",width=25,command=self.geridon)
@@ -81,6 +88,7 @@ class Proje1():
         self.top.destroy()
         self.root.deiconify()
     def AralikYarilama(self):
+
         #region Birinci Fonksiyon için.
         #Burada x Değerlerini Oluşturdum
         fBirHataDegeri = 1
@@ -98,7 +106,7 @@ class Proje1():
             #Her seferinde ilk olarak ortalama değeri buluyoruz.
             fBirxOrtalama = (fBirxKucuk + fBirxBuyuk) / 2
             # x değerlerini yazdırıyoruz.
-            self.lb1.insert(tk.END, f"{Sayac}) Xa : {fBirxKucuk} Xb = {fBirxBuyuk} Xo ={fBirxOrtalama}")
+            self.lb1.insert(tk.END, f"{Sayac}) Xa : ({fBirxKucuk}) Xb = ({fBirxBuyuk}) Xo =({fBirxOrtalama})")
             #her x değerini fonksiyonumuzda yerine koyup hesaplıyoruz.
             SonucBir = AralikYarilamaFonksiyonBir(fBirxKucuk)
             Sonucİki = AralikYarilamaFonksiyonBir(fBirxBuyuk)
@@ -136,7 +144,7 @@ class Proje1():
             # Her seferinde ilk olarak ortalama değeri buluyoruz.
             fİkixOrtalama = (fİkixKucuk + fİkixBuyuk) / 2
             # x değerlerini yazdırıyoruz.
-            self.lb2.insert(tk.END, f"{Sayac}) Xa : {fİkixKucuk} Xb = {fİkixBuyuk} Xo ={fİkixOrtalama}")
+            self.lb2.insert(tk.END, f"{Sayac}) Xa : ({fİkixKucuk}) Xb = ({fİkixBuyuk}) Xo =({fİkixOrtalama})")
             # her x değerini fonksiyonumuzda yerine koyup hesaplıyoruz.
             SonucBir = AralikYarilamaFonksiyonİki(fİkixKucuk)
             Sonucİki = AralikYarilamaFonksiyonİki(fİkixBuyuk)
@@ -156,6 +164,61 @@ class Proje1():
             # Her Seferinde hata değerini hesaplıyoruz (Her seferinde Azalıyor)
             fİkiHataDegeri = Sonucİki + SonucBir
             Sayac = Sayac + 1
+
+    def NewtonRaphson(self):
+        #x(k+1)=x(k)+(f(x(k))/f'(x(k))) döngü formülüdür ve f(x(k+1))<=E olursa durdurmamız lazım
+        
+        def f(x,formul):
+            if formul==1:
+                return (x**3)-(2*(x**2))-2
+            elif formul==2:
+                return (-8*math.cos(x) - x)
+
+        def ft(x,formul):
+            if formul==1:
+                return (3*(x**2)-(4)*(x))
+            elif formul==2:
+                return (8 * (math.sin(x)) - 1)
+        
+        def yontem(formul,x):
+            if formul==1:
+                lb=self.lb1
+                v=self.formul1.get()
+            else:
+                lb=self.lb2
+                v=self.formul2.get()
+
+            epsilon=0.0001
+            
+            sayac=0
+
+
+            lb.insert(tk.END,f"f(x) = {v}  x({sayac}) = {x} E={epsilon}")
+            
+            while(True):
+                if(f(x,formul)>epsilon):
+                    sonuc=x+(f(x,formul)/ft(x,formul))
+                    fonk=f(x,formul)
+                    fonk_t=ft(x,formul)
+                    lb.insert(tk.END,f"x{sayac} = {x} + ({fonk}/{fonk_t}) = {sonuc}")
+
+                    if f(sonuc,formul) == f(x,formul):
+                        lb.insert(tk.END,"f(x" +(sayac+1)+ f") = f(x{sayac}) olduğundan dolayı işlem tamamlanmıştır.")
+                        lb.insert(tk.END, f"kök x = {x}'tir")
+                        break
+                    x=sonuc
+                else:
+                    lb.insert(tk.END,f"f({x}) <= E olduğundan işlem tamamlanmıştır.")
+                    lb.insert(tk.END,f"kök x = {x}'tir")
+                    break
+                sayac+=1        
+
+        yontem(1,0)
+        yontem(2,2.35)
+
+
+
+
 
 basla=Proje1()
 basla.Main()
