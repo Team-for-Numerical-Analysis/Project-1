@@ -50,7 +50,7 @@ class Proje1():
             self.formul2.set("cos(x)-x*e^x")
         if self.secim==2:
             self.formul1.set("(x^3) - (x^2) - 2")
-            self.formul2.set("-8 * cos(x) - x")
+            self.formul2.set("(x^4)-(8*(x^2))+16")
         
     def buttonOnay(self):
         #ilk ekranı gizleyelim
@@ -164,59 +164,63 @@ class Proje1():
             # Her Seferinde hata değerini hesaplıyoruz (Her seferinde Azalıyor)
             fİkiHataDegeri = Sonucİki + SonucBir
             Sayac = Sayac + 1
+    
 
     def NewtonRaphson(self):
         #x(k+1)=x(k)+(f(x(k))/f'(x(k))) döngü formülüdür ve f(x(k+1))<=E olursa durdurmamız lazım
         
         def f(x,formul):
+            #verilen sayıya göre formülü getirecek
             if formul==1:
                 return (x**3)-(2*(x**2))-2
             elif formul==2:
-                return (-8*math.cos(x) - x)
+                return ((x**4)-8*(x**2) + 16)
 
         def ft(x,formul):
+            #verilen sayıya göre fonksiyonun türevli halini verecek
             if formul==1:
                 return (3*(x**2)-(4)*(x))
             elif formul==2:
-                return (8 * (math.sin(x)) - 1)
+                return ((4)*(x**3)-16*x)
         
-        def yontem(formul,x):
+        def yontem(x,formul):
+            #formülün numarasına göre değişkenlere atanacak. her fonksiyon için ayrı birer metot yazmamıza gerek kalmadı
             if formul==1:
                 lb=self.lb1
-                v=self.formul1.get()
+                fonk=self.formul1.get() # metotu tekrar tekrar çağırmak yerine bir değişkene atadım
+                fonk_t=ft(x,formul)
             else:
                 lb=self.lb2
-                v=self.formul2.get()
+                fonk=self.formul2.get()
+                fonk_t=ft(x,formul)
 
-            epsilon=0.0001
-            
+            # değişkenler
+            epsilon=0.0001            
             sayac=0
+            #formülü ve diğer değişkenleri gösterdim
+            lb.insert(tk.END,f"f(x) = {fonk} | x({sayac}) = {x} | E={epsilon}")
+            lb.insert(tk.END,"-------------------------------------------------------")
 
-
-            lb.insert(tk.END,f"f(x) = {v}  x({sayac}) = {x} E={epsilon}")
-            
             while(True):
                 if(f(x,formul)>epsilon):
-                    sonuc=x+(f(x,formul)/ft(x,formul))
-                    fonk=f(x,formul)
-                    fonk_t=ft(x,formul)
-                    lb.insert(tk.END,f"x{sayac} = {x} + ({fonk}/{fonk_t}) = {sonuc}")
-
-                    if f(sonuc,formul) == f(x,formul):
+                    sonuc=x-((f(x,formul))/(ft(x,formul)))
+                    lb.insert(tk.END,f"x({sayac}) = {x} - ({fonk}/{fonk_t}) = {sonuc}")
+                    lb.insert(tk.END,"-------------------------------------------------------")
+                    
+                    #fonksiyon aynı değeri tekrar tekrar döndürmesin diye oluşturulmuş bir if bloğu
+                    if f(sonuc,formul) == f(x,formul): 
                         lb.insert(tk.END,"f(x" +(sayac+1)+ f") = f(x{sayac}) olduğundan dolayı işlem tamamlanmıştır.")
                         lb.insert(tk.END, f"kök x = {x}'tir")
                         break
-                    x=sonuc
+                    x=sonuc 
                 else:
-                    lb.insert(tk.END,f"f({x}) <= E olduğundan işlem tamamlanmıştır.")
-                    lb.insert(tk.END,f"kök x = {x}'tir")
+                    lb.insert(tk.END,f"f({x}) <= {epsilon} olduğundan")
+                    lb.insert(tk.END,f"KÖK-> x = {x}'tir")
                     break
                 sayac+=1        
 
-        yontem(1,0)
-        yontem(2,2.35)
-
-
+        yontem(8,1)
+        yontem(2.5,2)
 
 
 
