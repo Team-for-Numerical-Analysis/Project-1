@@ -19,7 +19,7 @@ class Proje1():
         d1.grid(row=1,column=0,sticky="w")
         d2=tk.Radiobutton(frame,text="Newton-Raphson",variable=self.r1,value=2,bg="lightyellow",command=self.EntryeYaz)
         d2.grid(row=2,column=0,sticky="w")
-        d3=tk.Radiobutton(frame,text="Sekant Yöntemi",variable=self.r1,value=3,bg="lightyellow")   
+        d3=tk.Radiobutton(frame,text="Sekant Yöntemi",variable=self.r1,value=3,bg="lightyellow",command=self.EntryeYaz)   
         d3.grid(row=3,column=0,sticky="w")
 
         #Radio buttonda seçilen seçeneğe göre formülleri göstermemiz gerekecek. Bunun için entry kullanmak istedim
@@ -51,6 +51,9 @@ class Proje1():
         if self.secim==2:
             self.formul1.set("(x^3) - (x^2) - 2")
             self.formul2.set("(x^4)-(8*(x^2))+16")
+        if self.secim==3:
+            self.formul1.set("(e^x) - (x^2)")
+            self.formul2.set("(x^3) - 2*(x^2) + 4x - 8")
         
     def buttonOnay(self):
         #ilk ekranı gizleyelim
@@ -60,29 +63,37 @@ class Proje1():
         self.top.title("Sonuç Ekranı")
         self.top.config(bg="#FFFFF0")
 
+        # Grid'in sütunlarını ve satırlarını genişletilebilir yap
+        self.top.columnconfigure(0, weight=1)
+        self.top.columnconfigure(1, weight=1)
+        self.top.rowconfigure(0, weight=1)
+        self.top.rowconfigure(1, weight=1)
+
 
 
         #formülleri gösterelim
         self.f1=tk.Label(self.top,textvariable=self.formul1,bg="#FFFFF0")
-        self.f1.grid(row=0,column=0)
+        self.f1.grid(row=0,column=0,sticky="nsew")
         self.f2=tk.Label(self.top,textvariable=self.formul2,bg="#FFFFF0")
-        self.f2.grid(row=0,column=1)
+        self.f2.grid(row=0,column=1,sticky="nsew")
 
         #listbox oluşturacağım ki işlemleri gösterebileyim
 
         self.lb1=tk.Listbox(self.top,width=50,height=20)
-        self.lb1.grid(row=1,column=0,padx=10,pady=10)
+        self.lb1.grid(row=1,column=0,padx=10,pady=10,sticky="nsew")
         self.lb2=tk.Listbox(self.top,width=50,height=20)
-        self.lb2.grid(row=1,column=1,padx=10,pady=10)
+        self.lb2.grid(row=1,column=1,padx=10,pady=10,sticky="nsew")
         #Hangi Yöntemin seçildiğine dair:
         if self.secim == 1:
             self.AralikYarilama()
         if self.secim == 2:
             self.NewtonRaphson()
+        if self.secim == 3:
+            self.Sekant()
 
         #buton oluşturup geri döndürelim
         bGeri=tk.Button(self.top,text="Geri Dön",width=25,command=self.geridon)
-        bGeri.grid(row=2,column=0,columnspan=3,pady=10)
+        bGeri.grid(row=2,column=0,columnspan=3,pady=10,sticky="nsew")
 
     def geridon(self):
         self.top.destroy()
@@ -221,6 +232,50 @@ class Proje1():
 
         yontem(8,1)
         yontem(2.5,2)
+
+    def Sekant(self):
+        def f(x,fNo):
+            if fNo==1:
+                return ( math.exp(1) - (x**2) )
+            else:
+                return ((x**3) - 2*(x**2) + 4*x - 8)
+
+        def Yontem(xEski,xYeni,fNo):
+            # döngü denklemi x(k+1)=x(k)-f(x(k))*((x(k-1)-x(k))/f(x(k-1)-f(x(k))))
+            if fNo==1:
+                lb=self.lb1
+                fonk=self.formul1.get()
+            else:
+                lb=self.lb2
+                fonk=self.formul2.get()
+
+            sayac=2
+            epsilon=0.0001
+
+            lb.insert(tk.END,f"x(0)={xEski} | x(1)={xYeni} | E={epsilon} | f(x)={fonk}")
+
+            while(True):
+                
+                if f(xYeni,fNo) > epsilon:
+                    sonuc=xYeni-f(xYeni,fNo)*((xEski-xYeni)/(f(xEski,fNo)-f(xYeni,fNo)))
+                    lb.insert(tk.END,f"x({sayac})= {xYeni}-{f(xYeni,fNo)}*({xEski} - {xYeni} ) / (({f(xEski,fNo)}) - ({f(xYeni,fNo)})))")
+
+                    if xYeni==sonuc:
+                        lb.insert(f"Değişkenler değişmediğinden KÖK-> x={xYeni}'tir.")
+                        break
+                    
+                    xEski=xYeni
+                    xYeni=sonuc
+                    sayac+=1
+                else:
+                    lb.insert(tk.END,f"f(x({sayac})) <= E olduğundan")
+                    lb.insert(tk.END,f"KÖK-> x = {xYeni}'tir.")
+                    break
+        
+        Yontem(-2,1,1)
+        Yontem(-2,3,2)
+
+
 
 
 
