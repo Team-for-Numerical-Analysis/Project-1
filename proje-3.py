@@ -7,6 +7,8 @@ class Proje3:
     def __init__(self):
         # Formül dy/dx = y*cos(x) + (x^2)
         #x(n+1) = x(n) + h , y(n+1) = y(n) + f(x(n),y(n))
+        #x0 =0 , y0 =1 ,y(5) soruluyor, h=∆𝑥 ve farklı değerlere sahip
+
        
         
         self.ui()
